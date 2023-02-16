@@ -24,21 +24,26 @@ const String LOGIC_GATE_NAMES[6] = {
   "XNOR"        // 1001
 };
 
-void loop() {
-  // Mode a b y
-  int res = check_gate(A, B, Y);
-  
-  // Mode y b a
-  if(res < 0) res = check_gate(Y, B, A);
+const int MODES[6][3] = {
+  {A, B, Y},
+  {A, Y, B},
+  {B, A, Y},
+  {B, Y, A},
+  {Y, A, B},
+  {Y, B, A},
+};
 
-  // Mode a y b
-  if(res < 0) res = check_gate(A, Y, B);
-  
-  // Mode b y a
-  if(res < 0) res = check_gate(B, Y, A);
+void loop() {
+  // Test all possible combinations of the positions of the A, B and Y pins
+  int res = -1;
+
+  for(int i = 0; i < (sizeof MODES / sizeof MODES[0]); i++) {
+    res = test_gate(MODES[i][0], MODES[i][1], MODES[i][2]);
+    if(res != -1) break;
+  }
   
   // Print the result of the tests into the serial monitor
-  if(res < 0) {
+  if(res == -1) {
     Serial.println("No gate detected!");
   } else {
     Serial.print("Detected ");
@@ -50,7 +55,7 @@ void loop() {
   delay(1000);
 }
 
-int check_gate(int a, int b, int y) {
+int test_gate(int a, int b, int y) {
   pinMode(a, OUTPUT);
   pinMode(b, OUTPUT);
   pinMode(y, INPUT);
