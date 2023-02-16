@@ -16,38 +16,37 @@ const int LOGIC_GATES[6][4] = {
 };
 
 const String LOGIC_GATE_NAMES[6] = {
-  "AND",  // 0001
-  "OR",   // 0111
-  "NAND", // 1110
-  "NOR",  // 1000
-  "XOR",  // 0110
-  "XNOR"  // 1001
+  "AND",        // 0001
+  "OR",         // 0111
+  "NAND",       // 1110
+  "NOR",        // 1000
+  "XOR",        // 0110
+  "XNOR"        // 1001
 };
 
 void loop() {
-  // Mode 1 a b y
+  // Mode a b y
   int res = check_gate(A, B, Y);
   
-  // Mode 2 y b a
-  if(res < 0) {
-    res = check_gate(Y, B, A);
-  }
+  // Mode y b a
+  if(res < 0) res = check_gate(Y, B, A);
 
-  // Mode 3 a y b
-  if(res < 0) {
-    res = check_gate(A, Y, B);
-  }
+  // Mode a y b
+  if(res < 0) res = check_gate(A, Y, B);
   
-  // Mode 3 b y a
-  if(res < 0) {
-    res = check_gate(B, Y, A);
-  }
-
+  // Mode b y a
+  if(res < 0) res = check_gate(B, Y, A);
+  
+  // Print the result of the tests into the serial monitor
   if(res < 0) {
     Serial.println("No gate detected!");
   } else {
-    Serial.println(LOGIC_GATE_NAMES[res]);
+    Serial.print("Detected ");
+    Serial.print(LOGIC_GATE_NAMES[res]);
+    Serial.printn(" gate");
   }
+  
+  // Wait one second to prevent the serial monitor from being spamed
   delay(1000);
 }
 
@@ -58,26 +57,27 @@ int check_gate(int a, int b, int y) {
 
   int values[4] = {0, 0, 0, 0};
 
-  // 0 0
+  // Test a=0 b=0
   digitalWrite(a, 0);
   digitalWrite(b, 0);
   values[0] = digitalRead(y);
 
-  // 1 0
+  // Test a=1 b=0
   digitalWrite(a, 1);
   digitalWrite(b, 0);
   values[1] = digitalRead(y);
 
-  // 0 1
+  // Test a=0 b=1
   digitalWrite(a, 0);
   digitalWrite(b, 1);
   values[2] = digitalRead(y);
 
-  // 1 1
+  // Test a=1 b=1
   digitalWrite(a, 1);
   digitalWrite(b, 1);
   values[3] = digitalRead(y);
   
+  // Test if the results match a logic gate and return the logic gate number if so
   for(int i = 0; i < 6; i++) {
     bool mismatch = false;
     for(int j = 0; j < 4; j++) {
